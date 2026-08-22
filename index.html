@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyPulse Weather Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+
+    <div class="weather-container">
+        <!-- Search & Location Header -->
+        <div class="header-box">
+            <div class="header-title-row">
+                <h1 id="city-name"><i class="fa-solid fa-location-dot"></i> --</h1>
+                <div id="live-world-clock" class="live-clock hidden">--</div>
+            </div>
+            <div class="search-box-wrapper">
+                <div class="search-box">
+                    <input type="text" id="city-input" placeholder="Search city or region...">
+                    <button id="search-btn" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+                <!-- Location Selection Dropdown -->
+                <div id="city-dropdown" class="city-dropdown hidden"></div>
+            </div>
+            <button id="loc-btn"><i class="fa-solid fa-crosshairs"></i> Use Current Location</button>
+        </div>
+
+        <!-- Main Temperature Display -->
+        <div id="weather-card" class="weather-card hidden">
+            <div class="main-temp-section">
+                <div class="temp-val-box">
+                    <span id="temp" class="temp-large">--</span>
+                    <span class="temp-unit">°C</span>
+                </div>
+                <p id="condition" class="condition">--</p>
+                <p id="temp-range-feels" class="sub-condition">--</p>
+            </div>
+
+            <!-- Temperature Trend Wave SVG Section -->
+            <div class="trend-wave-container">
+                <svg id="trend-svg" viewBox="0 0 350 85" preserveAspectRatio="none">
+                    <path id="trend-path" d="" fill="none" stroke="#ffaa43" stroke-width="3"/>
+                </svg>
+                <div id="trend-nodes" class="trend-nodes">
+                    <!-- Dynamic hourly nodes inserted via JS -->
+                </div>
+            </div>
+
+            <!-- Rain & Precipitation Tracker Card -->
+            <div class="rain-card">
+                <div class="rain-header">
+                    <h3><i class="fa-solid fa-cloud-showers-heavy"></i> Rain Tracker 🌧️</h3>
+                    <span id="rain-summary-badge" class="rain-badge">No Rain ☀️</span>
+                </div>
+                <div class="rain-grid">
+                    <div class="rain-stat-box">
+                        <span class="rain-title">Past Rain 🌧️</span>
+                        <h4 id="past-rain-val">0.0 mm</h4>
+                        <span class="rain-sub">Past 24h</span>
+                    </div>
+                    <div class="rain-stat-box highlight-rain">
+                        <span class="rain-title">Current Rain ☔</span>
+                        <h4 id="current-rain-val">0.0 mm/h</h4>
+                        <span id="current-rain-status" class="rain-sub">Dry now</span>
+                    </div>
+                    <div class="rain-stat-box">
+                        <span class="rain-title">Upcoming Rain 🌦️</span>
+                        <h4 id="upcoming-rain-val">0%</h4>
+                        <span id="upcoming-rain-time" class="rain-sub">Next 24h</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Grid Cards (Feels Like, Wind, Humidity, UV, Visibility, Pressure) -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <i class="fa-solid fa-temperature-arrow-up"></i>
+                    <span>Feels Like</span>
+                    <h3 id="feels-like">--°C</h3>
+                </div>
+                <div class="metric-card">
+                    <i class="fa-solid fa-wind"></i>
+                    <span>Wind Direction</span>
+                    <h3 id="wind-dir">--</h3>
+                </div>
+                <div class="metric-card">
+                    <i class="fa-solid fa-droplet"></i>
+                    <span>Humidity</span>
+                    <h3 id="humidity">--%</h3>
+                </div>
+                <div class="metric-card">
+                    <i class="fa-solid fa-sun"></i>
+                    <span>UV Index</span>
+                    <h3 id="uv-index">--</h3>
+                </div>
+                <div class="metric-card">
+                    <i class="fa-solid fa-eye"></i>
+                    <span>Visibility</span>
+                    <h3 id="visibility">-- km</h3>
+                </div>
+                <div class="metric-card">
+                    <i class="fa-solid fa-gauge"></i>
+                    <span>Pressure</span>
+                    <h3 id="pressure">-- hPa</h3>
+                </div>
+            </div>
+
+            <!-- Air Quality / PM2.5 Section -->
+            <div class="aqi-card">
+                <div class="aqi-header">
+                    <div>
+                        <span id="aqi-val" class="aqi-number">--</span>
+                    </div>
+                    <div id="aqi-status" class="aqi-badge">--</div>
+                    <i class="fa-solid fa-circle-info aqi-info-icon" title="AQI measures major pollutants like PM2.5, PM10, CO, and SO2 to report cleanliness and health risks."></i>
+                </div>
+                <div class="aqi-scale-container">
+                    <div class="aqi-bar-bg"></div>
+                    <div class="aqi-scale-labels">
+                        <span>Good</span>
+                        <span>Mod</span>
+                        <span>Poor</span>
+                        <span>Unhealthy</span>
+                        <span>Severe</span>
+                        <span>Hazard</span>
+                    </div>
+                </div>
+                <div class="aqi-pollutants">
+                    <div><span>PM2.5</span><b id="pm25">--</b></div>
+                    <div><span>PM10</span><b id="pm10">--</b></div>
+                    <div><span>CO</span><b id="co">--</b></div>
+                    <div><span>SO2</span><b id="so2">--</b></div>
+                </div>
+            </div>
+
+            <!-- Sun Cycle Tracker (Live Arc) -->
+            <div class="sun-cycle-card">
+                <div class="sun-card-title">
+                    <i class="fa-solid fa-sun sun-title-icon"></i> Sun Position & Daylight Tracker ☀️
+                </div>
+                <div class="sun-svg-box">
+                    <svg class="sun-svg" viewBox="0 0 200 90" preserveAspectRatio="none">
+                        <path d="M 10 85 A 90 90 0 0 1 190 85" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-dasharray="4"/>
+                    </svg>
+                    <i id="sun-icon" class="fa-solid fa-sun sun-icon"></i>
+                </div>
+                <div class="sun-times">
+                    <div><i class="fa-solid fa-sunrise"></i> Sunrise: <span id="sunrise-time">--:--</span></div>
+                    <div><i class="fa-solid fa-sunset"></i> Sunset: <span id="sunset-time">--:--</span></div>
+                </div>
+            </div>
+
+            <!-- Extended Past & Future Timeline Outlook -->
+            <div class="daily-forecast-container">
+                <h3>7-Day Past & Future Outlook</h3>
+                <div id="daily-list" class="daily-list">
+                    <!-- Timeline rows populated via JS -->
+                </div>
+            </div>
+        </div>
+
+        <p id="error-message" class="error-msg"></p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
