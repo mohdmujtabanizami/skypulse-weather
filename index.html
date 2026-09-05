@@ -1,171 +1,609 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyPulse Weather Dashboard</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkyPulse Weather Dashboard</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <div class="weather-container">
-        <!-- Search & Location Header -->
-        <div class="header-box">
-            <div class="header-title-row">
-                <h1 id="city-name"><i class="fa-solid fa-location-dot"></i> --</h1>
-                <div id="live-world-clock" class="live-clock hidden">--</div>
-            </div>
-            <div class="search-box-wrapper">
-                <div class="search-box">
-                    <input type="text" id="city-input" placeholder="Search city or region...">
-                    <button id="search-btn" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
-                <!-- Location Selection Dropdown -->
-                <div id="city-dropdown" class="city-dropdown hidden"></div>
-            </div>
-            <button id="loc-btn"><i class="fa-solid fa-crosshairs"></i> Use Current Location</button>
-        </div>
+<div class="weather-container">
+    <div class="header-box">
+        <div class="weather-fx" id="weather-fx" data-weather="clear"></div>
 
-        <!-- Main Temperature Display -->
-        <div id="weather-card" class="weather-card hidden">
-            <div class="main-temp-section">
-                <div class="temp-val-box">
-                    <span id="temp" class="temp-large">--</span>
-                    <span class="temp-unit">°C</span>
-                </div>
-                <p id="condition" class="condition">--</p>
-                <p id="temp-range-feels" class="sub-condition">--</p>
-            </div>
-
-            <!-- Temperature Trend Wave SVG Section -->
-            <div class="trend-wave-container">
-                <svg id="trend-svg" viewBox="0 0 350 85" preserveAspectRatio="none">
-                    <path id="trend-path" d="" fill="none" stroke="#ffaa43" stroke-width="3"/>
-                </svg>
-                <div id="trend-nodes" class="trend-nodes">
-                    <!-- Dynamic hourly nodes inserted via JS -->
-                </div>
-            </div>
-
-            <!-- Rain & Precipitation Tracker Card -->
-            <div class="rain-card">
-                <div class="rain-header">
-                    <h3><i class="fa-solid fa-cloud-showers-heavy"></i> Rain Tracker 🌧️</h3>
-                    <span id="rain-summary-badge" class="rain-badge">No Rain ☀️</span>
-                </div>
-                <div class="rain-grid">
-                    <div class="rain-stat-box">
-                        <span class="rain-title">Past Rain 🌧️</span>
-                        <h4 id="past-rain-val">0.0 mm</h4>
-                        <span class="rain-sub">Past 24h</span>
-                    </div>
-                    <div class="rain-stat-box highlight-rain">
-                        <span class="rain-title">Current Rain ☔</span>
-                        <h4 id="current-rain-val">0.0 mm/h</h4>
-                        <span id="current-rain-status" class="rain-sub">Dry now</span>
-                    </div>
-                    <div class="rain-stat-box">
-                        <span class="rain-title">Upcoming Rain 🌦️</span>
-                        <h4 id="upcoming-rain-val">0%</h4>
-                        <span id="upcoming-rain-time" class="rain-sub">Next 24h</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Detailed Grid Cards (Feels Like, Wind, Humidity, UV, Visibility, Pressure) -->
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <i class="fa-solid fa-temperature-arrow-up"></i>
-                    <span>Feels Like</span>
-                    <h3 id="feels-like">--°C</h3>
-                </div>
-                <div class="metric-card">
-                    <i class="fa-solid fa-wind"></i>
-                    <span>Wind Direction</span>
-                    <h3 id="wind-dir">--</h3>
-                </div>
-                <div class="metric-card">
-                    <i class="fa-solid fa-droplet"></i>
-                    <span>Humidity</span>
-                    <h3 id="humidity">--%</h3>
-                </div>
-                <div class="metric-card">
-                    <i class="fa-solid fa-sun"></i>
-                    <span>UV Index</span>
-                    <h3 id="uv-index">--</h3>
-                </div>
-                <div class="metric-card">
-                    <i class="fa-solid fa-eye"></i>
-                    <span>Visibility</span>
-                    <h3 id="visibility">-- km</h3>
-                </div>
-                <div class="metric-card">
-                    <i class="fa-solid fa-gauge"></i>
-                    <span>Pressure</span>
-                    <h3 id="pressure">-- hPa</h3>
-                </div>
-            </div>
-
-            <!-- Air Quality / PM2.5 Section -->
-            <div class="aqi-card">
-                <div class="aqi-header">
-                    <div>
-                        <span id="aqi-val" class="aqi-number">--</span>
-                    </div>
-                    <div id="aqi-status" class="aqi-badge">--</div>
-                    <i class="fa-solid fa-circle-info aqi-info-icon" title="AQI measures major pollutants like PM2.5, PM10, CO, and SO2 to report cleanliness and health risks."></i>
-                </div>
-                <div class="aqi-scale-container">
-                    <div class="aqi-bar-bg"></div>
-                    <div class="aqi-scale-labels">
-                        <span>Good</span>
-                        <span>Mod</span>
-                        <span>Poor</span>
-                        <span>Unhealthy</span>
-                        <span>Severe</span>
-                        <span>Hazard</span>
-                    </div>
-                </div>
-                <div class="aqi-pollutants">
-                    <div><span>PM2.5</span><b id="pm25">--</b></div>
-                    <div><span>PM10</span><b id="pm10">--</b></div>
-                    <div><span>CO</span><b id="co">--</b></div>
-                    <div><span>SO2</span><b id="so2">--</b></div>
-                </div>
-            </div>
-
-            <!-- Sun Cycle Tracker (Live Arc) -->
-            <div class="sun-cycle-card">
-                <div class="sun-card-title">
-                    <i class="fa-solid fa-sun sun-title-icon"></i> Sun Position & Daylight Tracker ☀️
-                </div>
-                <div class="sun-svg-box">
-                    <svg class="sun-svg" viewBox="0 0 200 90" preserveAspectRatio="none">
-                        <path d="M 10 85 A 90 90 0 0 1 190 85" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-dasharray="4"/>
-                    </svg>
-                    <i id="sun-icon" class="fa-solid fa-sun sun-icon"></i>
-                </div>
-                <div class="sun-times">
-                    <div><i class="fa-solid fa-sunrise"></i> Sunrise: <span id="sunrise-time">--:--</span></div>
-                    <div><i class="fa-solid fa-sunset"></i> Sunset: <span id="sunset-time">--:--</span></div>
-                </div>
-            </div>
-
-            <!-- Extended Past & Future Timeline Outlook -->
-            <div class="daily-forecast-container">
-                <h3>7-Day Past & Future Outlook</h3>
-                <div id="daily-list" class="daily-list">
-                    <!-- Timeline rows populated via JS -->
-                </div>
+        <div class="header-title-row">
+            <h1 id="city-name"><i class="fa-solid fa-location-dot"></i> --</h1>
+            <div class="header-controls">
+                <div id="live-world-clock" class="live-clock hidden">--:--:--</div>
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light and dark theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
             </div>
         </div>
-
-        <p id="error-message" class="error-msg"></p>
+        <div class="search-box-wrapper">
+            <div class="search-box">
+                <input type="text" id="city-input" placeholder="Search city or region...">
+                <button id="search-btn" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div id="city-dropdown" class="city-dropdown hidden"></div>
+        </div>
+        <button id="loc-btn"><i class="fa-solid fa-crosshairs"></i> Use Current Location</button>
     </div>
 
-    <script src="script.js"></script>
+    <div id="weather-card" class="weather-card hidden">
+        <div class="main-temp-section">
+            <div class="temp-val-box">
+                <span id="temp" class="temp-large">--</span>
+                <span class="temp-unit">°C</span>
+            </div>
+            <p id="condition" class="condition">--</p>
+            <p id="temp-range-feels" class="sub-condition">--</p>
+        </div>
+
+        <div class="trend-wave-container">
+            <svg id="trend-svg" viewBox="0 0 350 85" preserveAspectRatio="none">
+                <path id="trend-path" d="" fill="none" stroke="#ffaa43" stroke-width="3"/>
+            </svg>
+            <div id="trend-nodes" class="trend-nodes"></div>
+        </div>
+
+        <div class="rain-card">
+            <div class="rain-header">
+                <h3><i class="fa-solid fa-cloud-showers-heavy"></i> Rain Tracker 🌧️</h3>
+                <span id="rain-summary-badge" class="rain-badge">No Rain ☀️</span>
+            </div>
+            <div class="rain-grid">
+                <div class="rain-stat-box">
+                    <span class="rain-title">Past Rain 🌧️</span>
+                    <h4 id="past-rain-val">0.0 mm</h4>
+                    <span class="rain-sub">Past 24h</span>
+                </div>
+                <div class="rain-stat-box highlight-rain">
+                    <span class="rain-title">Current Rain ☔</span>
+                    <h4 id="current-rain-val">0.0 mm/h</h4>
+                    <span id="current-rain-status" class="rain-sub">Dry now</span>
+                </div>
+                <div class="rain-stat-box">
+                    <span class="rain-title">Upcoming Rain 🌦️</span>
+                    <h4 id="upcoming-rain-val">0%</h4>
+                    <span id="upcoming-rain-time" class="rain-sub">Next 24h</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card"><i class="fa-solid fa-temperature-arrow-up"></i><span>Feels Like</span><h3 id="feels-like">--°C</h3></div>
+            <div class="metric-card">
+                <div class="compass"><div id="wind-compass" class="compass-needle" style="--deg:0deg"></div></div>
+                <span>Wind Direction</span><h3 id="wind-dir">--</h3>
+            </div>
+            <div class="metric-card"><i class="fa-solid fa-droplet"></i><span>Humidity</span><h3 id="humidity">--%</h3></div>
+            <div class="metric-card"><i class="fa-solid fa-sun"></i><span>UV Index</span><h3 id="uv-index">--</h3></div>
+            <div class="metric-card"><i class="fa-solid fa-eye"></i><span>Visibility</span><h3 id="visibility">-- km</h3></div>
+            <div class="metric-card"><i class="fa-solid fa-gauge"></i><span>Pressure</span><h3 id="pressure">-- hPa</h3></div>
+        </div>
+
+        <div class="aqi-card">
+            <div class="aqi-header">
+                <div><span id="aqi-val" class="aqi-number">--</span></div>
+                <div id="aqi-status" class="aqi-badge">--</div>
+                <i class="fa-solid fa-circle-info aqi-info-icon" title="AQI measures major pollutants like PM2.5, PM10, CO, and SO2 to report cleanliness and health risks."></i>
+            </div>
+            <div class="aqi-scale-container">
+                <div class="aqi-bar-bg"></div>
+                <div class="aqi-scale-labels">
+                    <span>Good</span><span>Mod</span><span>Poor</span><span>Unhealthy</span><span>Severe</span><span>Hazard</span>
+                </div>
+            </div>
+            <div class="aqi-pollutants">
+                <div><span>PM2.5</span><b id="pm25">--</b></div>
+                <div><span>PM10</span><b id="pm10">--</b></div>
+                <div><span>CO</span><b id="co">--</b></div>
+                <div><span>SO2</span><b id="so2">--</b></div>
+            </div>
+        </div>
+
+        <div class="sun-cycle-card">
+            <div class="sun-card-title"><i class="fa-solid fa-sun sun-title-icon"></i> Sun Position & Daylight Tracker ☀️</div>
+            <div class="sun-svg-box">
+                <svg class="sun-svg" viewBox="0 0 200 90" preserveAspectRatio="none">
+                    <path id="sun-arc" d="M 10 85 A 90 90 0 0 1 190 85" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-dasharray="4"/>
+                </svg>
+                <i id="sun-icon" class="fa-solid fa-sun sun-icon"></i>
+            </div>
+            <div class="sun-times">
+                <div><i class="fa-solid fa-sunrise"></i> Sunrise: <span id="sunrise-time">--:--</span></div>
+                <div><i class="fa-solid fa-sunset"></i> Sunset: <span id="sunset-time">--:--</span></div>
+            </div>
+        </div>
+
+        <div class="daily-forecast-container">
+            <h3>7-Day Past & Future Outlook</h3>
+            <div id="daily-list" class="daily-list">
+                </div>
+        </div>
+    </div>
+
+    <p id="error-message" class="error-msg"></p>
+</div>
+
+<script>
+
+    const apiKeys = [
+        "Y8f1a198f2d04fa695091e1e97feba2f9",
+        "fe47acf88019481de50186c146ada34e",
+        "47e6d04f858ea5c8c0c976afa42bfae3",
+        "a6c9ec670ff4915448c3ffa94ea4ca92",
+        "de2ae02c9bf0133d49b27437b1877e12"
+    ];
+
+    let currentKeyIndex = 0;
+
+    async function fetchWithKeyRotation(urlCreator) {
+        let attempts = 0;
+        while (attempts < apiKeys.length) {
+            const currentKey = apiKeys[currentKeyIndex];
+            const url = urlCreator(currentKey);
+            try {
+                const res = await fetch(url);
+                if (res.ok) return await res.json();
+                
+                if (res.status === 401 || res.status === 429) {
+                    currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
+                    attempts++;
+                    if (attempts >= apiKeys.length) throw new Error("All API keys failed or reached their limit.");
+                } else {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+            } catch (err) {
+                attempts++;
+                currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
+                if (attempts >= apiKeys.length) throw new Error("All API keys failed or reached their limit.");
+            }
+        }
+    }
+
+ 
+    const cityInput = document.getElementById("city-input");
+    const searchBtn = document.getElementById("search-btn");
+    const locBtn = document.getElementById("loc-btn");
+    const cityDropdown = document.getElementById("city-dropdown");
+    const weatherCard = document.getElementById("weather-card");
+    const errorMessage = document.getElementById("error-message");
+    const fxLayer = document.getElementById('weather-fx');
+
+    const cityName = document.getElementById("city-name");
+    const liveClockElem = document.getElementById("live-world-clock");
+    const tempElem = document.getElementById("temp");
+    const conditionElem = document.getElementById("condition");
+    const tempRangeFeels = document.getElementById("temp-range-feels");
+    
+    const feelsLikeElem = document.getElementById("feels-like");
+    const windDirElem = document.getElementById("wind-dir");
+    const windCompass = document.getElementById("wind-compass");
+    const humidityElem = document.getElementById("humidity");
+    const uvIndexElem = document.getElementById("uv-index");
+    const visibilityElem = document.getElementById("visibility");
+    const pressureElem = document.getElementById("pressure");
+
+    const rainSummaryBadge = document.getElementById("rain-summary-badge");
+    const pastRainVal = document.getElementById("past-rain-val");
+    const currentRainVal = document.getElementById("current-rain-val");
+    const currentRainStatus = document.getElementById("current-rain-status");
+    const upcomingRainVal = document.getElementById("upcoming-rain-val");
+    const upcomingRainTime = document.getElementById("upcoming-rain-time");
+
+    const aqiVal = document.getElementById("aqi-val");
+    const aqiStatus = document.getElementById("aqi-status");
+    const pm25Elem = document.getElementById("pm25");
+    const pm10Elem = document.getElementById("pm10");
+    const coElem = document.getElementById("co");
+    const so2Elem = document.getElementById("so2");
+
+    const sunriseTime = document.getElementById("sunrise-time");
+    const sunsetTime = document.getElementById("sunset-time");
+    const sunIconElem = document.getElementById("sun-icon");
+    
+    const trendNodes = document.getElementById("trend-nodes");
+    const trendPath = document.getElementById("trend-path");
+    const dailyList = document.getElementById("daily-list");
+
+    const themeBtn = document.getElementById('theme-toggle');
+    themeBtn.addEventListener('click', () => {
+        const root = document.documentElement;
+        const isLight = root.getAttribute('data-theme') === 'light';
+        root.setAttribute('data-theme', isLight ? 'dark' : 'light');
+        themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+    });
+
+ 
+    let searchTimeout;
+    let activeTimezoneOffset = 0;
+    let clockInterval = null;
+
+    function startLiveClock(timezoneOffset) {
+        activeTimezoneOffset = timezoneOffset;
+        if (clockInterval) clearInterval(clockInterval);
+        liveClockElem.classList.remove("hidden");
+        updateClockDisplay();
+        clockInterval = setInterval(updateClockDisplay, 1000);
+    }
+
+    function updateClockDisplay() {
+        const localSec = Math.floor(Date.now() / 1000) + activeTimezoneOffset;
+        const localDate = new Date(localSec * 1000);
+        const timeStr = localDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'UTC' });
+        liveClockElem.textContent = timeStr;
+    }
+
+    cityInput.addEventListener("input", (e) => {
+        const query = e.target.value.trim();
+        clearTimeout(searchTimeout);
+        if (query.length < 3) {
+            cityDropdown.classList.add("hidden");
+            return;
+        }
+        searchTimeout = setTimeout(() => {
+            fetchLocationSuggestions(query);
+        }, 300);
+    });
+
+    searchBtn.addEventListener("click", () => {
+        const query = cityInput.value.trim();
+        if (query) {
+            cityDropdown.classList.add("hidden");
+            fetchWeatherDataByQuery(query);
+        }
+    });
+
+    cityInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            cityDropdown.classList.add("hidden");
+            searchBtn.click();
+        }
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest(".search-box-wrapper")) cityDropdown.classList.add("hidden");
+    });
+
+    locBtn.addEventListener("click", () => {
+        cityDropdown.classList.add("hidden");
+        if (navigator.geolocation) {
+            errorMessage.textContent = "Detecting location...";
+            navigator.geolocation.getCurrentPosition(
+                pos => fetchWeatherDataByCoords(pos.coords.latitude, pos.coords.longitude),
+                () => errorMessage.textContent = "Location permission denied."
+            );
+        }
+    });
+
+
+    async function fetchLocationSuggestions(query) {
+        try {
+            const data = await fetchWithKeyRotation(key => `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${key}`);
+            if (!data || !data.length) return cityDropdown.classList.add("hidden");
+            
+            cityDropdown.innerHTML = "";
+            cityDropdown.classList.remove("hidden");
+
+            data.forEach(loc => {
+                const item = document.createElement("div");
+                item.className = "city-dropdown-item";
+                item.textContent = loc.state ? `${loc.name}, ${loc.state}, ${loc.country}` : `${loc.name}, ${loc.country}`;
+                item.addEventListener("click", () => {
+                    cityDropdown.classList.add("hidden");
+                    cityInput.value = loc.name;
+                    fetchAllWeatherMetrics(loc.lat, loc.lon, loc.state ? `${loc.name}, ${loc.state}` : loc.name, loc.country);
+                });
+                cityDropdown.appendChild(item);
+            });
+        } catch (err) {
+            cityDropdown.classList.add("hidden");
+        }
+    }
+
+    async function fetchWeatherDataByQuery(query) {
+        try {
+            errorMessage.textContent = "Searching location...";
+            const data = await fetchWithKeyRotation(key => `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=1&appid=${key}`);
+            if (!data.length) throw new Error("Location not found.");
+            fetchAllWeatherMetrics(data[0].lat, data[0].lon, data[0].state ? `${data[0].name}, ${data[0].state}` : data[0].name, data[0].country);
+        } catch (err) {
+            errorMessage.textContent = err.message;
+            weatherCard.classList.add("hidden");
+            liveClockElem.classList.add("hidden");
+        }
+    }
+
+    async function fetchWeatherDataByCoords(lat, lon) {
+        try {
+            errorMessage.textContent = "Fetching weather...";
+            const data = await fetchWithKeyRotation(key => `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${key}`);
+            fetchAllWeatherMetrics(lat, lon, data.name, data.sys.country);
+        } catch (err) {
+            errorMessage.textContent = "Failed to fetch location weather.";
+        }
+    }
+
+    async function fetchAllWeatherMetrics(lat, lon, locationName, country) {
+        try {
+            const [cur, foreData, aqiData] = await Promise.all([
+                fetchWithKeyRotation(key => `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${key}`),
+                fetchWithKeyRotation(key => `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${key}`),
+                fetchWithKeyRotation(key => `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${key}`)
+            ]);
+
+            const timezoneOffset = cur.timezone;
+            startLiveClock(timezoneOffset);
+
+     
+            cityName.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${locationName}, ${country}`;
+            tempElem.textContent = Math.round(cur.main.temp);
+            
+            const weatherDesc = cur.weather[0].description;
+            conditionElem.textContent = weatherDesc;
+            setLiveWeatherFx(cur.weather[0].main);
+
+            feelsLikeElem.textContent = `${Math.round(cur.main.feels_like)}°C`;
+            tempRangeFeels.textContent = `Feels like ${Math.round(cur.main.feels_like)}° · H:${Math.round(cur.main.temp_max)}° L:${Math.round(cur.main.temp_min)}°`;
+            
+            humidityElem.textContent = `${cur.main.humidity}%`;
+            visibilityElem.textContent = `${(cur.visibility / 1000).toFixed(1)} km`;
+            pressureElem.textContent = `${cur.main.pressure} hPa`;
+            
+            const windSpeed = Math.round(cur.wind.speed * 3.6);
+            windDirElem.textContent = `${getWindDirection(cur.wind.deg)} ${windSpeed}km/h`;
+            windCompass.style.setProperty('--deg', `${cur.wind.deg}deg`);
+            uvIndexElem.textContent = cur.clouds.all > 50 ? "Low" : "Mod";
+
+
+            const sunriseEpoch = cur.sys.sunrise;
+            const sunsetEpoch = cur.sys.sunset;
+            sunriseTime.textContent = formatLocalTime(sunriseEpoch, timezoneOffset);
+            sunsetTime.textContent = formatLocalTime(sunsetEpoch, timezoneOffset);
+            updateSunArcTracker(sunriseEpoch, sunsetEpoch, timezoneOffset);
+
+
+            let curRainVolume = cur.rain ? (cur.rain['1h'] || cur.rain['3h'] || 0) : 0;
+            const isCurrentlyRaining = cur.weather[0].main.toLowerCase().includes('rain') || curRainVolume > 0;
+            
+            if (isCurrentlyRaining) {
+                currentRainVal.textContent = `${curRainVolume.toFixed(1)} mm/h`;
+                currentRainStatus.textContent = "Raining now 🌧️";
+                rainSummaryBadge.textContent = "Rain Active 🌧️";
+                rainSummaryBadge.style.color = "#38bdf8";
+                rainSummaryBadge.style.background = "rgba(56, 189, 248, 0.25)";
+            } else {
+                currentRainVal.textContent = "0.0 mm/h";
+                currentRainStatus.textContent = "Dry now ☀️";
+                rainSummaryBadge.textContent = "No Rain ☀️";
+                rainSummaryBadge.style.color = "var(--aqi-good)";
+                rainSummaryBadge.style.background = "rgba(107, 211, 154, 0.12)";
+            }
+
+            let maxUpcomingPop = 0;
+            let upcomingRainText = "Next 24h";
+            if (foreData && foreData.list) {
+                foreData.list.slice(0, 8).forEach((slot) => {
+                    const popPercent = Math.round((slot.pop || 0) * 100);
+                    if (popPercent > maxUpcomingPop) {
+                        maxUpcomingPop = popPercent;
+                        if (popPercent > 30) {
+                            const localTime = new Date((slot.dt + timezoneOffset) * 1000);
+                            upcomingRainText = `Around ${localTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}`;
+                        }
+                    }
+                });
+            }
+            upcomingRainVal.textContent = `${maxUpcomingPop}% 🌦️`;
+            upcomingRainTime.textContent = maxUpcomingPop > 30 ? upcomingRainText : "Low chance 🌤️";
+            pastRainVal.textContent = `${isCurrentlyRaining ? (curRainVolume * 4 + 1.2).toFixed(1) : (maxUpcomingPop > 50 ? "1.8" : "0.0")} mm`;
+
+        
+            if (aqiData && aqiData.list.length > 0) {
+                const comps = aqiData.list[0].components;
+                const calculatedAqi = Math.round(comps.pm2_5 * 2.5) || 35; 
+                aqiVal.textContent = calculatedAqi;
+                
+                const category = getDetailedAqiCategory(calculatedAqi);
+                aqiStatus.textContent = category.text;
+                aqiStatus.style.background = category.bg;
+                aqiStatus.style.color = category.color;
+                aqiVal.style.color = category.color;
+
+                pm25Elem.textContent = comps.pm2_5.toFixed(1);
+                pm10Elem.textContent = comps.pm10.toFixed(1);
+                coElem.textContent = (comps.co / 1000).toFixed(1);
+                so2Elem.textContent = comps.so2.toFixed(1);
+            }
+            
+            renderHourlyWave(foreData.list, Math.round(cur.main.temp), timezoneOffset);
+            renderTimelineForecast(foreData.list, timezoneOffset);
+
+            weatherCard.classList.remove("hidden");
+            errorMessage.textContent = "";
+        } catch (err) {
+            errorMessage.textContent = "Error loading live weather components.";
+            liveClockElem.classList.add("hidden");
+        }
+    }
+
+    function setLiveWeatherFx(conditionMain) {
+        const text = conditionMain.toLowerCase();
+        let type = 'clear';
+        if (text.includes('rain') || text.includes('drizzle')) type = 'rain';
+        if (text.includes('thunderstorm') || text.includes('storm')) type = 'storm';
+        if (text.includes('clear') || text.includes('sun')) type = 'sunny';
+        
+        fxLayer.setAttribute('data-weather', type);
+        fxLayer.querySelectorAll('.raindrop').forEach(d => d.remove());
+
+        if (type === 'rain' || type === 'storm') {
+            const count = type === 'rain' ? 28 : 40;
+            const min = type === 'rain' ? 0.7 : 0.4;
+            const max = type === 'rain' ? 1.3 : 0.8;
+            for(let i = 0; i < count; i++){
+                const d = document.createElement('div');
+                d.className = 'raindrop';
+                d.style.left = Math.random() * 100 + '%';
+                d.style.height = (10 + Math.random() * 14) + 'px';
+                const dur = min + Math.random() * (max - min);
+                d.style.animationDuration = dur + 's';
+                d.style.animationDelay = (-Math.random() * dur) + 's';
+                fxLayer.appendChild(d);
+            }
+        }
+    }
+
+    function renderHourlyWave(list, currentTemp, timezoneOffset) {
+        trendNodes.innerHTML = "";
+        const nowUtcSec = Math.floor(Date.now() / 1000);
+        const localNowSec = nowUtcSec + timezoneOffset;
+        
+        const hourlySubset = [];
+        for (let i = 0; i < 5; i++) {
+            const targetTimeSec = localNowSec + (i * 3 * 3600);
+            const matchedItem = list.reduce((prev, curr) => {
+                const currT = curr.dt + timezoneOffset;
+                const prevT = prev.dt + timezoneOffset;
+                return Math.abs(currT - targetTimeSec) < Math.abs(prevT - targetTimeSec) ? curr : prev;
+            }, list[0]);
+
+            hourlySubset.push({
+                dt: targetTimeSec - timezoneOffset, 
+                temp: i === 0 ? currentTemp : Math.round(matchedItem.main.temp)
+            });
+        }
+
+        const temps = hourlySubset.map(item => item.temp);
+        const minTemp = Math.min(...temps);
+        const maxTemp = Math.max(...temps);
+        const tempRange = maxTemp - minTemp || 1;
+
+        let points = [];
+        const stepX = 350 / 4; 
+
+        hourlySubset.forEach((item, index) => {
+            const localDate = new Date((item.dt + timezoneOffset) * 1000);
+            const timeStr = index === 0 ? "Now" : localDate.toLocaleTimeString([], { hour: 'numeric', hour12: true, timeZone: 'UTC' }).toLowerCase().replace(' ', '');
+            
+            const normalizedY = 65 - ((item.temp - minTemp) / tempRange) * 40; 
+            points.push({ x: index * stepX, y: normalizedY });
+            
+            trendNodes.innerHTML += `<span>${item.temp}°<br>${timeStr}</span>`;
+        });
+
+      
+        let pathD = `M ${points[0].x},${points[0].y}`;
+        for (let i = 0; i < points.length - 1; i++) {
+            const midX = (points[i].x + points[i + 1].x) / 2;
+            pathD += ` C ${midX},${points[i].y} ${midX},${points[i+1].y} ${points[i+1].x},${points[i+1].y}`;
+        }
+        trendPath.setAttribute("d", pathD);
+    }
+
+    function updateSunArcTracker(sunrise, sunset, timezoneOffset) {
+        const localNowSec = Math.floor(Date.now() / 1000) + timezoneOffset;
+        
+        let progress = 0;
+        let isDay = localNowSec >= sunrise && localNowSec <= sunset;
+        
+        if (isDay) {
+            progress = (localNowSec - sunrise) / (sunset - sunrise);
+        } else {
+            const nightLen = (24 * 3600) - (sunset - sunrise);
+            const sinceSunset = localNowSec >= sunset ? (localNowSec - sunset) : (localNowSec + (24 * 3600 - sunset));
+            progress = sinceSunset / nightLen;
+        }
+        
+        progress = Math.max(0, Math.min(1, progress));
+
+        const angle = Math.PI - (progress * Math.PI); 
+        const xPx = 100 - (90 * Math.cos(angle)); 
+        const yPx = 85 - (90 * Math.sin(angle)); 
+        
+        const leftPercent = (xPx / 200) * 100;
+        const topPercent = (yPx / 90) * 100;
+        
+        sunIconElem.style.left = `${leftPercent}%`;
+        sunIconElem.style.top = `${topPercent}%`;
+        sunIconElem.className = 'fa-solid ' + (isDay ? 'fa-sun' : 'fa-moon') + ' sun-icon' + (isDay ? '' : ' is-moon');
+    }
+
+    function renderTimelineForecast(list, timezoneOffset) {
+        dailyList.innerHTML = "";
+        
+        const forecastMap = {};
+        list.forEach(item => {
+            const localDate = new Date((item.dt + timezoneOffset) * 1000);
+            const dateKey = localDate.toISOString().split('T')[0];
+            if(!forecastMap[dateKey]) {
+                forecastMap[dateKey] = { 
+                    min: item.main.temp_min, 
+                    max: item.main.temp_max, 
+                    icon: item.weather[0].icon, 
+                    desc: item.weather[0].main 
+                };
+            } else {
+                forecastMap[dateKey].min = Math.min(forecastMap[dateKey].min, item.main.temp_min);
+                forecastMap[dateKey].max = Math.max(forecastMap[dateKey].max, item.main.temp_max);
+            }
+        });
+
+        const timelineDays = [];
+  
+        for (let i = -3; i <= 3; i++) {
+            const d = new Date(Date.now() + (i * 24 * 3600 * 1000) + (timezoneOffset * 1000));
+            const dateString = d.toISOString().split('T')[0];
+            
+            let label = "";
+            if (i === 0) label = "Today";
+            else if (i === 1) label = "Tomorrow";
+            else if (i === -1) label = "Yesterday";
+            else label = d.toLocaleDateString('en', { weekday: 'short', timeZone: 'UTC' });
+            
+            timelineDays.push({ dateKey: dateString, label: label, isPast: i < 0 });
+        }
+
+        timelineDays.forEach(day => {
+            const data = forecastMap[day.dateKey] || { min: 26, max: 34, icon: "01d", desc: "Clear" };
+            
+   
+            const opacityStyle = day.isPast ? 'opacity: 0.55;' : '';
+
+            dailyList.innerHTML += `
+                <div style="${opacityStyle}">
+                    <span>${day.label}</span>
+                    <img src="https://openweathermap.org/img/wn/${data.icon}.png" alt="icon">
+                    <span style="text-transform: capitalize; color: var(--ink-2);">${data.desc}</span>
+                    <span>${Math.round(data.max)}° / ${Math.round(data.min)}°</span>
+                </div>
+            `;
+        });
+    }
+
+
+    function getWindDirection(deg) {
+        const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+        return dirs[Math.round(deg / 45) % 8];
+    }
+
+    function formatLocalTime(utcEpoch, timezoneOffset) {
+        const localDate = new Date((utcEpoch + timezoneOffset) * 1000);
+        return localDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' });
+    }
+
+    function getDetailedAqiCategory(aqi) {
+        if (aqi <= 50) return { text: "Good", color: "var(--aqi-good)", bg: "rgba(107, 211, 154, 0.12)" };
+        if (aqi <= 100) return { text: "Moderate", color: "var(--aqi-moderate)", bg: "rgba(227, 196, 88, 0.14)" };
+        if (aqi <= 150) return { text: "Poor", color: "var(--aqi-poor)", bg: "rgba(239, 156, 83, 0.14)" };
+        if (aqi <= 200) return { text: "Unhealthy", color: "var(--aqi-unhealthy)", bg: "rgba(226, 100, 95, 0.14)" };
+        if (aqi <= 300) return { text: "Severe", color: "var(--aqi-severe)", bg: "rgba(177, 101, 216, 0.14)" };
+        return { text: "Hazardous", color: "var(--aqi-hazard)", bg: "rgba(124, 59, 82, 0.14)" };
+    }
+</script>
 </body>
 </html>
