@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Manrope:wght@400;500;600;700;800&display=swap');
 :root{
-  /* sky depths */
   --bg-0:      #060a16;
   --bg-1:      #0d1730;
   --bg-2:      #17233f;
@@ -174,7 +173,7 @@ html::before{
 
 .header-box {
   position: relative;
-  z-index: 50; /* This forces the header and its dropdown to sit OVER the weather card */
+  z-index: 50; 
   padding: 22px 22px 20px;
   border-radius: var(--radius-lg);
   background: linear-gradient(180deg, var(--glass-strong), var(--glass));
