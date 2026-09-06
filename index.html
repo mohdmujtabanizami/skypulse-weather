@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SkyPulse Weather Dashboard</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ffaa43">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -603,6 +605,19 @@
         if (aqi <= 200) return { text: "Unhealthy", color: "var(--aqi-unhealthy)", bg: "rgba(226, 100, 95, 0.14)" };
         if (aqi <= 300) return { text: "Severe", color: "var(--aqi-severe)", bg: "rgba(177, 101, 216, 0.14)" };
         return { text: "Hazardous", color: "var(--aqi-hazard)", bg: "rgba(124, 59, 82, 0.14)" };
+    }
+    
+   
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => {
+            console.log('ServiceWorker registered successfully');
+          })
+          .catch(err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+      });
     }
 </script>
 </body>
